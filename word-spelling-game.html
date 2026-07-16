@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Spell It!</title>
+<style>
+  :root {
+    --c1: #FF5A5F; /* red */
+    --c2: #FF9F1C; /* orange */
+    --c3: #FFD93D; /* yellow */
+    --c4: #6BCB77; /* green */
+    --c5: #4D96FF; /* blue */
+    --c6: #8E7CFF; /* indigo */
+    --c7: #FF6FB5; /* pink */
+    --c8: #2EC4B6; /* teal */
+    --ink: #2B2B3A;
+    --paper: #FFFDF7;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  body {
+    font-family: "Comic Sans MS", "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+    background: linear-gradient(135deg, #FFE29F 0%, #FFB6D9 35%, #A0E7E5 70%, #B4F8C8 100%);
+    background-size: 300% 300%;
+    animation: driftBg 18s ease-in-out infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100vh;
+    padding: clamp(8px, 1.5vh, 20px);
+  }
+
+  @keyframes driftBg {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  h1 {
+    margin: 0 0 clamp(6px, 1vh, 14px) 0;
+    font-size: clamp(22px, 4vh, 40px);
+    color: var(--ink);
+    text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(0,0,0,0.08);
+    letter-spacing: 1px;
+  }
+
+  .boxes-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(6px, 1.2vh, 14px);
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: clamp(4px, 0.8vw, 10px);
+  }
+
+  .box {
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    background: #ffffffcc;
+    border: 3px solid #ffffff;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .row-upper .box { font-size: clamp(18px, 4.2vh, 44px); color: var(--ink); }
+  .row-lower .box { font-size: clamp(16px, 3.4vh, 36px); color: var(--ink); }
+
+  .box.filled {
+    animation: pop 0.28s ease;
+    border-color: rgba(255,255,255,0.9);
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+  }
+
+  .box.pos-0 { background: var(--c1); }
+  .box.pos-1 { background: var(--c2); }
+  .box.pos-2 { background: var(--c3); }
+  .box.pos-3 { background: var(--c4); }
+  .box.pos-4 { background: var(--c5); }
+  .box.pos-5 { background: var(--c6); }
+  .box.pos-6 { background: var(--c7); }
+  .box.pos-7 { background: var(--c8); }
+
+  @keyframes pop {
+    0%   { transform: scale(0.6) rotate(-6deg); }
+    60%  { transform: scale(1.15) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, 0.8vh, 8px);
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .krow {
+    display: flex;
+    justify-content: center;
+    gap: clamp(3px, 0.6vw, 7px);
+  }
+
+  .key {
+    flex: 1;
+    max-width: 70px;
+    aspect-ratio: 0.8 / 1;
+    border: none;
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: clamp(16px, 2.6vh, 26px);
+    font-weight: 700;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+
+  .key:active, .key.pressed {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 rgba(0,0,0,0.15);
+  }
+
+  .key.wide {
+    flex: 1.8;
+    max-width: 140px;
+    font-size: clamp(13px, 2vh, 20px);
+  }
+
+  .key.enter { background: #6BCB77; color: #fff; }
+  .key.back  { background: #FF6F6F; color: #fff; }
+
+  @media (max-width: 480px) {
+    .key { max-width: 44px; }
+    .key.wide { max-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+  <h1>Spell a word! ✨</h1>
+
+  <div class="boxes-wrap">
+    <div class="row row-upper" id="rowUpper"></div>
+    <div class="row row-lower" id="rowLower"></div>
+  </div>
+
+  <div class="keyboard" id="keyboard"></div>
+
+<script>
+  const MAX_LEN = 8;
+  let letters = [];
+
+  const rowUpper = document.getElementById('rowUpper');
+  const rowLower = document.getElementById('rowLower');
+  const keyboard = document.getElementById('keyboard');
+
+  function buildBoxes() {
+    rowUpper.innerHTML = '';
+    rowLower.innerHTML = '';
+    for (let i = 0; i < MAX_LEN; i++) {
+      const up = document.createElement('div');
+      up.className = 'box pos-' + i;
+      up.id = 'up-' + i;
+      rowUpper.appendChild(up);
+
+      const lo = document.createElement('div');
+      lo.className = 'box pos-' + i;
+      lo.id = 'lo-' + i;
+      rowLower.appendChild(lo);
+    }
+  }
+
+  function render() {
+    for (let i = 0; i < MAX_LEN; i++) {
+      const up = document.getElementById('up-' + i);
+      const lo = document.getElementById('lo-' + i);
+      const ch = letters[i];
+      up.className = 'box pos-' + i + (ch ? ' filled' : '');
+      lo.className = 'box pos-' + i + (ch ? ' filled' : '');
+      up.textContent = ch ? ch.toUpperCase() : '';
+      lo.textContent = ch ? ch.toLowerCase() : '';
+    }
+  }
+
+  function addLetter(ch) {
+    if (letters.length >= MAX_LEN) return;
+    letters.push(ch);
+    render();
+  }
+
+  function backspace() {
+    letters.pop();
+    render();
+  }
+
+  function clearAll() {
+    letters = [];
+    render();
+  }
+
+  // ---- On-screen keyboard ----
+  const rows = [
+    ['Q','W','E','R','T','Y','U','I','O','P'],
+    ['A','S','D','F','G','H','J','K','L'],
+    ['ENTER','Z','X','C','V','B','N','M','BACK']
+  ];
+
+  function buildKeyboard() {
+    keyboard.innerHTML = '';
+    rows.forEach(rowKeys => {
+      const krow = document.createElement('div');
+      krow.className = 'krow';
+      rowKeys.forEach(k => {
+        const btn = document.createElement('button');
+        btn.textContent = k === 'BACK' ? '⌫' : (k === 'ENTER' ? '↵' : k);
+        btn.className = 'key';
+        btn.dataset.key = k;
+        if (k === 'ENTER') btn.classList.add('wide', 'enter');
+        if (k === 'BACK') btn.classList.add('wide', 'back');
+        btn.addEventListener('click', () => handleKey(k));
+        krow.appendChild(btn);
+      });
+      keyboard.appendChild(krow);
+    });
+  }
+
+  function flashKey(key) {
+    const btn = keyboard.querySelector('[data-key="' + key + '"]');
+    if (!btn) return;
+    btn.classList.add('pressed');
+    setTimeout(() => btn.classList.remove('pressed'), 100);
+  }
+
+  function handleKey(k) {
+    flashKey(k);
+    if (k === 'ENTER') { clearAll(); return; }
+    if (k === 'BACK') { backspace(); return; }
+    addLetter(k);
+  }
+
+  // ---- Physical keyboard ----
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { handleKey('ENTER'); return; }
+    if (e.key === 'Backspace') { handleKey('BACK'); return; }
+    if (/^[a-zA-Z]$/.test(e.key)) { handleKey(e.key.toUpperCase()); }
+  });
+
+  buildBoxes();
+  buildKeyboard();
+  render();
+</script>
+
+</body>
+</html>
